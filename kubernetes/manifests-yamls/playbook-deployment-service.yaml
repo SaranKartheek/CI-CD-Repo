@@ -1,0 +1,15 @@
+---
+- name: Create pods using deployment and expose the service for the application
+  hosts: localhost
+  
+  collections:
+  - community.kubernetes
+  
+  tasks: 
+  - name: create a deployment
+    shell: |
+      kubectl --kubeconfig=/root/.kube/config apply -f /etc/ansible/kubernetes/deployment.yaml
+    
+  - name: create a service
+    shell: |
+      kubectl --kubeconfig=/root/.kube/config apply -f /etc/ansible/kubernetes/service.yaml
