@@ -34,9 +34,9 @@ pipeline{
                 script{
                     withCredentials([string(credentialsId: 'nexus_password', variable: 'nexus_password')]) {
                              sh '''
-                                docker build -t 3.140.208.96:8083/springapp:${DOCKER_TAG} .
-                                docker login -u admin -p $nexus_password 3.140.208.96:8083
-                                docker push 3.140.208.96:8083/springapp:${DOCKER_TAG}
+                                docker build -t 3.23.112.112:8083/springapp:${DOCKER_TAG} .
+                                docker login -u admin -p $nexus_password 3.23.112.112:8083
+                                docker push 3.23.112.112:8083/springapp:${DOCKER_TAG}
 				docker logout
 			    '''
 		    }
@@ -48,9 +48,9 @@ pipeline{
                 script{    
 	                     sh '''
 			        cat my_password.txt | docker login --username saranvemireddy --password-stdin
-				docker tag 3.140.208.96:8083/springapp:${DOCKER_TAG} saranvemireddy/springapp:${DOCKER_TAG}
+				docker tag 3.23.112.112:8083/springapp:${DOCKER_TAG} saranvemireddy/springapp:${DOCKER_TAG}
                                 docker push saranvemireddy/springapp:${DOCKER_TAG}
-				docker rmi 3.140.208.96:8083/springapp:${DOCKER_TAG}
+				docker rmi 3.23.112.112:8083/springapp:${DOCKER_TAG}
 				docker rmi saranvemireddy/springapp:${DOCKER_TAG}
 				docker logout
                             '''
@@ -77,7 +77,7 @@ pipeline{
                              sh '''
                                   helmversion=$( helm show chart myapp | grep version | cut -d: -f 2 | tr -d ' ')
                                   tar -czvf myapp-${helmversion}.tgz myapp/
-                                  curl -u admin:$nexus_password http://3.140.208.96:8081/repository/helm-repo/ --upload-file myapp-${helmversion}.tgz -v
+                                  curl -u admin:$nexus_password http://3.23.112.112:8081/repository/helm-repo/ --upload-file myapp-${helmversion}.tgz -v
                             '''
                           }
                     }
