@@ -34,9 +34,9 @@ pipeline{
                 script{
                     withCredentials([string(credentialsId: 'nexus_password', variable: 'nexus_password')]) {
                              sh '''
-                                docker build -t 3.140.208.96:8083/springapp:${DOCKER_TAG} .
-                                docker login -u admin -p $nexus_password 3.140.208.96:8083
-                                docker push 3.140.208.96:8083/springapp:${DOCKER_TAG}
+                                docker build -t 3.23.112.112:8083/springapp:${DOCKER_TAG} .
+                                docker login -u admin -p $nexus_password 3.23.112.112:8083
+                                docker push 3.23.112.112:8083/springapp:${DOCKER_TAG}
 				docker logout
 			    '''
 		    }
@@ -48,9 +48,9 @@ pipeline{
                 script{    
 	                     sh '''
 			        cat my_password.txt | docker login --username saranvemireddy --password-stdin
-				docker tag 3.140.208.96:8083/springapp:${DOCKER_TAG} saranvemireddy/springapp:${DOCKER_TAG}
+				docker tag 3.23.112.112:8083/springapp:${DOCKER_TAG} saranvemireddy/springapp:${DOCKER_TAG}
                                 docker push saranvemireddy/springapp:${DOCKER_TAG}
-				docker rmi 3.140.208.96:8083/springapp:${DOCKER_TAG}
+				docker rmi 3.23.112.112:8083/springapp:${DOCKER_TAG}
 				docker rmi saranvemireddy/springapp:${DOCKER_TAG}
 				docker logout
                             '''
@@ -72,12 +72,12 @@ pipeline{
         stage("Pushing the helm charts to nexus"){
             steps{
                 script{
-                    withCredentials([string(credentialsId: 'nexus_pass', variable: 'nexus_password')]) {
+                    withCredentials([string(credentialsId: 'nexus_password', variable: 'nexus_password')]) {
                           dir('kubernetes/') {
                              sh '''
                                   helmversion=$( helm show chart myapp | grep version | cut -d: -f 2 | tr -d ' ')
                                   tar -czvf myapp-${helmversion}.tgz myapp/
-                                  curl -u admin:$nexus_password http://3.140.208.96:8081/repository/helm-repo/ --upload-file myapp-${helmversion}.tgz -v
+                                  curl -u admin:$nexus_password http://3.23.112.112:8081/repository/helm-repo/ --upload-file myapp-${helmversion}.tgz -v
                             '''
                           }
                     }
@@ -111,7 +111,7 @@ pipeline{
         stage('Deploying application on k8s cluster from ansible-server using playbook') {
             steps {
                script{
-			        sh 'ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@172.31.3.203 "kubectl config get-contexts; kubectl config use-context kubernetes-admin@kubernetes; whoami && hostname; ansible-playbook -i /etc/ansible/kubernetes/hosts /etc/ansible/kubernetes/playbook-deployment-service.yaml; sudo rm -rf /etc/ansible/kubernetes/*.yaml;"'   
+			        sh 'ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@172.31.3.203 "kubectl config get-contexts; kubectl config use-context kubernetes-admin@kubernetes; whoami && hostname; ansible-playbook /etc/ansible/kubernetes/playbook-deployment-service.yaml; sudo rm -rf /etc/ansible/kubernetes/*.yaml;"'   
                }
             }
         }
@@ -119,7 +119,7 @@ pipeline{
         stage('verifying app deployment'){
             steps{
                 script{
-                     withCredentials([kubeconfigFile(credentialsId: 'kubernetes-configs', variable: 'KUBECONFIG')]) {
+                     withCredentials([kubeconfigFile(credentialsId: 'kubernetes-config', variable: 'KUBECONFIG')]) {
                          sh 'kubectl run curl --image=curlimages/curl -i --rm --restart=Never -- curl sample-tomcat-service:8080'
 
                      }
